@@ -133,13 +133,8 @@ class MainWindow(QMainWindow, form_class) :
             event.ignore()
 
 
-# class SettingsWindow(QDialog):
-#     def __init__(self):
-#         super().__init__()
-#         self.setWindowTitle('Settings')
-#         self.setWindowIcon(QIcon('.ico/icon.png'))
-#         self.ui = uic.loadUi('settings.ui', self)
-#
+
+
 # class CameraPreview(QtWidgets.QWidget):
 #     def __init__(self, parent=None):
 #         super(CameraPreview, self).__init__(parent)
@@ -154,3 +149,14 @@ class MainWindow(QMainWindow, form_class) :
 #             image = frame.array
 #             # 여기서 이미지를 어떻게 처리하고 PyQt의 어떤 객체에 표시할지 작성해야 합니다.
 #             self.raw_capture.truncate(0)
+
+
+# class SettingsWindow(QDialog):
+#     def __init__(self):
+#         super().__init__()
+#         self.setWindowTitle('Settings')
+#         self.setWindowIcon(QIcon('.ico/icon.png'))
+#         self.ui = uic.loadUi('settings.ui', self)
+#
+
+
