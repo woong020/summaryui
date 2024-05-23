@@ -1,14 +1,14 @@
 # import .py
-
+#import camera
 
 # import package
 import sys
 import os.path
 from PyQt5.QtWidgets import *
-from PyQt5.QtGui import QIcon, QPixmap
+from PyQt5.QtGui import QIcon, QPixmap, QPalette
+from PyQt5 import QtCore
 from PyQt5.QtCore import QSize, Qt
 from PyQt5 import uic
-
 
 
 
@@ -21,8 +21,13 @@ def resource_path(relative_path):
 form = resource_path("summary.ui")
 form_class = uic.loadUiType(form)[0]
 
+scan_cnt = 0
+
 #화면을 띄우는데 사용되는 Class 선언
 class WindowClass(QMainWindow, form_class) :
+
+
+
     # Main initial
     def __init__(self) :
         super().__init__()
@@ -37,7 +42,7 @@ class WindowClass(QMainWindow, form_class) :
         self.setWindowIcon(QIcon(icon_dir))
         self.initSTATUS()
         self.initMENU()
-        #self.initBTN()
+        self.initBTN()
         self.initLOGO()
 
     # Logo initial
@@ -52,6 +57,11 @@ class WindowClass(QMainWindow, form_class) :
     def initSTATUS(self):
         self.statusBar().showMessage('Ready')
 
+
+    def initBTN(self):
+        self.btn_scan.clicked.connect(lambda: self.initbtnscan())
+        self.btn_summary.clicked.connect(lambda: self.initbtnssummary())
+        self.btn_reset.clicked.connect(lambda: self.initbtnreset())
 
     # MenuBar initial
     def initMENU(self):
@@ -79,12 +89,22 @@ class WindowClass(QMainWindow, form_class) :
         helpmenu.addAction(aboutAction)
 
 
+    def initbtnscan(self):
+        global scan_cnt
+        scan_cnt = scan_cnt + 1
+        self.statusBar().showMessage('현재까지 스캔된 페이지 : ' + str(scan_cnt) + '장')
+
+    #     camera.cameracapture()
 
 
+    def initbtnssummary(self):
+        self.statusBar().showMessage('요약 실행중')
 
 
-
-
+    def initbtnreset(self):
+        self.statusBar().showMessage('Ready')
+        global scan_cnt
+        scan_cnt = 0
 
 
     def closeEvent(self, event,):
