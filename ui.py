@@ -1,12 +1,14 @@
 # import .py
+import client
 #import camera
+
 
 # import package
 import sys
 import os.path
 from PyQt5.QtWidgets import *
-from PyQt5.QtGui import QIcon, QPixmap, QPalette
-from PyQt5 import QtCore
+from PyQt5.QtGui import QIcon, QPixmap, QPalette, QFont
+from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtCore import QSize, Qt
 from PyQt5 import uic
 
@@ -24,9 +26,7 @@ form_class = uic.loadUiType(form)[0]
 scan_cnt = 0
 
 #화면을 띄우는데 사용되는 Class 선언
-class WindowClass(QMainWindow, form_class) :
-
-
+class MainWindow(QMainWindow, form_class) :
 
     # Main initial
     def __init__(self) :
@@ -78,18 +78,25 @@ class WindowClass(QMainWindow, form_class) :
         aboutAction.setShortcut('Ctrl+H')
         aboutAction.triggered.connect(lambda : QMessageBox.about(self, 'About', abouttext))
 
+        settingAction = QAction('Settings', self)
+
+
 
         # Menu bar
         menubar = self.menuBar()
         menubar.setNativeMenuBar(False)
 
         filemenu = menubar.addMenu('&File')
+        filemenu.addAction(settingAction)
         filemenu.addAction(exitAction)
         helpmenu = menubar.addMenu('&Help')
         helpmenu.addAction(aboutAction)
 
 
     def initbtnscan(self):
+        #camera.
+        client.send_file()
+
         global scan_cnt
         scan_cnt = scan_cnt + 1
         self.statusBar().showMessage('현재까지 스캔된 페이지 : ' + str(scan_cnt) + '장')
@@ -98,22 +105,52 @@ class WindowClass(QMainWindow, form_class) :
 
 
     def initbtnssummary(self):
-        self.statusBar().showMessage('요약 실행중')
+        response = ''
+        response = client.send_summary_signal()
+        self.label_summary.setFont(QFont('Arial', 12))
+        self.label_summary.setText(str(response))
+
+        self.statusBar().showMessage('요약 완료')
         global scan_cnt
         scan_cnt = 0
 
 
     def initbtnreset(self):
+        client.send_delete_signal()
+        self.label_summary.setText('')
         self.statusBar().showMessage('Ready')
         global scan_cnt
         scan_cnt = 0
 
 
     def closeEvent(self, event,):
-        reply = QMessageBox.question(self, 'EXIT', 'Are you sure to quit?',
+        reply = QMessageBox.question(self, 'Exit', 'Are you sure to exit?',
                                     QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
 
         if reply == QMessageBox.Yes:
             event.accept()
         else:
             event.ignore()
+
+
+# class SettingsWindow(QDialog):
+#     def __init__(self):
+#         super().__init__()
+#         self.setWindowTitle('Settings')
+#         self.setWindowIcon(QIcon('.ico/icon.png'))
+#         self.ui = uic.loadUi('settings.ui', self)
+#
+# class CameraPreview(QtWidgets.QWidget):
+#     def __init__(self, parent=None):
+#         super(CameraPreview, self).__init__(parent)
+#         self.camera = PiCamera()
+#         self.camera.resolution = (511, 251)
+#         self.camera.framerate = 32
+#         self.raw_capture = PiRGBArray(self.camera, size=(640, 480))
+#         time.sleep(0.1)
+#
+#     def start_preview(self):
+#         for frame in self.camera.capture_continuous(self.raw_capture, format="bgr", use_video_port=True):
+#             image = frame.array
+#             # 여기서 이미지를 어떻게 처리하고 PyQt의 어떤 객체에 표시할지 작성해야 합니다.
+#             self.raw_capture.truncate(0)
