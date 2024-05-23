@@ -99,6 +99,8 @@ class WindowClass(QMainWindow, form_class) :
 
     def initbtnssummary(self):
         self.statusBar().showMessage('요약 실행중')
+        global scan_cnt
+        scan_cnt = 0
 
 
     def initbtnreset(self):
