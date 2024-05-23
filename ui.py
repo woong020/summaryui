@@ -8,10 +8,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import QIcon, QPixmap
 from PyQt5.QtCore import QSize, Qt
 from PyQt5 import uic
-import matplotlib.pyplot as plt
-import seaborn as sns
-from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
-from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
+
 
 
 
@@ -33,15 +30,22 @@ class WindowClass(QMainWindow, form_class) :
         self.initUI()
 
 
+    # AddUI initial
     def initUI(self):
-        self.setWindowTitle('summaryking')
-        #icon_dir = resource_path("./.ico/icon.png")
-        #self.setWindowIcon(QIcon(icon_dir))
+        self.setWindowTitle('Summary King')
+        icon_dir = resource_path("./.ico/icon.png")
+        self.setWindowIcon(QIcon(icon_dir))
         self.initSTATUS()
         self.initMENU()
         #self.initBTN()
-        #self.initLOGO()
+        self.initLOGO()
 
+    # Logo initial
+    def initLOGO(self):
+        logo_dir = resource_path("./.ico/logo.png")
+        logo = QPixmap(logo_dir)
+        logo_img = logo.scaled(QSize(100, 100), aspectRatioMode=Qt.KeepAspectRatio)
+        self.label_logo.setPixmap(logo_img)
 
 
     # StatusBar initial
@@ -56,10 +60,38 @@ class WindowClass(QMainWindow, form_class) :
         exitAction.setShortcut('Ctrl+Q')
         exitAction.triggered.connect(lambda : self.close())
 
-        abouttext = "This program is a hands-on program for data analysis in the first semester of 2022 and was produced by Team Fire.\n" \
+        abouttext = "This program is a hands-on program for 융종설 in the first semester of 2024 and was produced by Team SUMMARYKING.\n" \
                     "It cannot be copied or used without permission and requires the consent of the manufacturer.\n\n " \
                     "Powerd by 오픈 소스 소프트웨어 기반\n" \
-                    " Copyright ⓒ 2022 Team Fire"
+                    " Copyright ⓒ 2024 Team SUMMARYKING"
         aboutAction = QAction('About', self)
         aboutAction.setShortcut('Ctrl+H')
         aboutAction.triggered.connect(lambda : QMessageBox.about(self, 'About', abouttext))
+
+
+        # Menu bar
+        menubar = self.menuBar()
+        menubar.setNativeMenuBar(False)
+
+        filemenu = menubar.addMenu('&File')
+        filemenu.addAction(exitAction)
+        helpmenu = menubar.addMenu('&Help')
+        helpmenu.addAction(aboutAction)
+
+
+
+
+
+
+
+
+
+
+    def closeEvent(self, event,):
+        reply = QMessageBox.question(self, 'EXIT', 'Are you sure to quit?',
+                                    QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+
+        if reply == QMessageBox.Yes:
+            event.accept()
+        else:
+            event.ignore()
