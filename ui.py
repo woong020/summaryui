@@ -1,17 +1,19 @@
 # import .py
 import client
-from picamera2 import Picamera2
-from picamera2.previews.qt import QGlPicamera2
 
 # import package
 import time
 import sys
 import os.path
+# GUI 관련
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import QIcon, QPixmap, QPalette, QFont, QPainter, QImage
 from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtCore import QSize, Qt, pyqtSignal
 from PyQt5 import uic
+# camera 관련
+from picamera2 import Picamera2
+from picamera2.previews.qt import QGlPicamera2
 
 # Initialize the camera globally
 picam2 = Picamera2()
@@ -25,6 +27,7 @@ def resource_path(relative_path):
 form = resource_path("summary.ui")
 form_class = uic.loadUiType(form)[0]
 
+# scan 페이지 수 전역변수
 scan_cnt = 0
 
 
@@ -48,14 +51,14 @@ class MainWindow(QMainWindow, form_class) :
         self.initSTATUS()
         self.initMENU()
         self.initBTN()
-#        self.initLOGO()
+        # self.initLOGO()
 
-    # Logo initial
-#    def initLOGO(self):
-#        logo_dir = resource_path("./.ico/logo.png")
-#        logo = QPixmap(logo_dir)
-#        logo_img = logo.scaled(QSize(100, 100), aspectRatioMode=Qt.KeepAspectRatio)
-#        self.label_logo.setPixmap(logo_img)
+    # # Logo initial
+    # def initLOGO(self):
+    #     logo_dir = resource_path("./.ico/logo.png")
+    #     logo = QPixmap(logo_dir)
+    #     logo_img = logo.scaled(QSize(100, 100), aspectRatioMode=Qt.KeepAspectRatio)
+    #     self.label_logo.setPixmap(logo_img)
 
 
     # StatusBar initial
@@ -96,7 +99,7 @@ class MainWindow(QMainWindow, form_class) :
         helpmenu = menubar.addMenu('&Help')
         helpmenu.addAction(aboutAction)
 
-
+    # CameraPreview initial
     def start_camera_preview(self):
         # Adjust the preview size to match the sensor aspect ratio.
         preview_width = 481
@@ -120,8 +123,8 @@ class MainWindow(QMainWindow, form_class) :
         picam2.start()
 
 
+    # camera capture 비동기 작동 위한 callback
     def callback(self, job):
-        # Handle callback from camera operations if needed
         self.on_capture_complete()
 
 
@@ -129,18 +132,13 @@ class MainWindow(QMainWindow, form_class) :
         cfg = picam2.create_still_configuration()
         picam2.switch_mode_and_capture_file(cfg, "scan.jpg", signal_function=self.callback)
 
-        time.sleep(0.5)
-
 
     def initbtnscan(self):
         # Handle capture completion
         self.capture_image()
-       # client.send_file()
-       # global scan_cnt
-       # scan_cnt += 1
-       # self.statusBar().showMessage(f'현재까지 스캔된 페이지: {scan_cnt} 장')
 
 
+    # capture_image, callback 메소드 실행 후 socket open, scan_cnt 1 증가
     def on_capture_complete(self):
         client.send_file()
         global scan_cnt
@@ -149,7 +147,7 @@ class MainWindow(QMainWindow, form_class) :
 
 
     def initbtnssummary(self):
-        # Handle summary button click
+        # response = server 에서 응답으로 받는 값
         response = ''
         response = client.send_summary_signal()
         self.label_summary.setFont(QFont('Arial', 12))
@@ -161,7 +159,6 @@ class MainWindow(QMainWindow, form_class) :
 
 
     def initbtnreset(self):
-        # Handle reset button click
         client.send_delete_signal()
         self.label_summary.setText('')
         self.statusBar().showMessage('Ready')
