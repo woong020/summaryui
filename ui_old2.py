@@ -4,7 +4,6 @@ from picamera2 import Picamera2
 from picamera2.previews.qt import QGlPicamera2
 
 # import package
-import time
 import sys
 import os.path
 from PyQt5.QtWidgets import *
@@ -27,7 +26,6 @@ form_class = uic.loadUiType(form)[0]
 
 scan_cnt = 0
 
-
 #화면을 띄우는데 사용되는 Class 선언
 class MainWindow(QMainWindow, form_class) :
 
@@ -48,26 +46,23 @@ class MainWindow(QMainWindow, form_class) :
         self.initSTATUS()
         self.initMENU()
         self.initBTN()
-#        self.initLOGO()
+        self.initLOGO()
 
     # Logo initial
-#    def initLOGO(self):
-#        logo_dir = resource_path("./.ico/logo.png")
-#        logo = QPixmap(logo_dir)
-#        logo_img = logo.scaled(QSize(100, 100), aspectRatioMode=Qt.KeepAspectRatio)
-#        self.label_logo.setPixmap(logo_img)
-
+    def initLOGO(self):
+        logo_dir = resource_path("./.ico/logo.png")
+        logo = QPixmap(logo_dir)
+        logo_img = logo.scaled(QSize(100, 100), aspectRatioMode=Qt.KeepAspectRatio)
+        self.label_logo.setPixmap(logo_img)
 
     # StatusBar initial
     def initSTATUS(self):
         self.statusBar().showMessage('Ready')
 
-
     def initBTN(self):
         self.btn_scan.clicked.connect(lambda: self.initbtnscan())
         self.btn_summary.clicked.connect(lambda: self.initbtnssummary())
         self.btn_reset.clicked.connect(lambda: self.initbtnreset())
-
 
     # MenuBar initial
     def initMENU(self):
@@ -96,7 +91,6 @@ class MainWindow(QMainWindow, form_class) :
         helpmenu = menubar.addMenu('&Help')
         helpmenu.addAction(aboutAction)
 
-
     def start_camera_preview(self):
         # Adjust the preview size to match the sensor aspect ratio.
         preview_width = 481
@@ -119,34 +113,25 @@ class MainWindow(QMainWindow, form_class) :
         # Start camera
         picam2.start()
 
-
     def callback(self, job):
         # Handle callback from camera operations if needed
-        self.on_capture_complete()
+        pass
 
 
     def capture_image(self):
+        # Handle capture button click
         cfg = picam2.create_still_configuration()
-        picam2.switch_mode_and_capture_file(cfg, "scan.jpg", signal_function=self.callback)
-
-        time.sleep(0.5)
+        picam2.switch_mode_and_capture_file(cfg, "test.jpg", signal_function=self.qpicamera2.signal_done)
 
 
     def initbtnscan(self):
-        # Handle capture completion
+        # Handle scan button click
         self.capture_image()
-       # client.send_file()
-       # global scan_cnt
-       # scan_cnt += 1
-       # self.statusBar().showMessage(f'현재까지 스캔된 페이지: {scan_cnt} 장')
+#        client.send_file()
 
-
-    def on_capture_complete(self):
-        client.send_file()
         global scan_cnt
-        scan_cnt += 1
-        self.statusBar().showMessage(f'현재까지 스캔된 페이지: {scan_cnt} 장')
-
+        scan_cnt = scan_cnt + 1
+        self.statusBar().showMessage('현재까지 스캔된 페이지 : ' + str(scan_cnt) + '장')
 
     def initbtnssummary(self):
         # Handle summary button click
@@ -159,7 +144,6 @@ class MainWindow(QMainWindow, form_class) :
         global scan_cnt
         scan_cnt = 0
 
-
     def initbtnreset(self):
         # Handle reset button click
         client.send_delete_signal()
@@ -167,7 +151,6 @@ class MainWindow(QMainWindow, form_class) :
         self.statusBar().showMessage('Ready')
         global scan_cnt
         scan_cnt = 0
-
 
     def closeEvent(self, event):
         # Handle close event
@@ -179,6 +162,12 @@ class MainWindow(QMainWindow, form_class) :
         else:
             event.ignore()
 
+# Application entry point
+if __name__ == '__main__':
+    app = QApplication(sys.argv)
+    mainWindow = MainWindow()
+    mainWindow.show()
+    sys.exit(app.exec_())
 
 # Stop camera when application exits
 picam2.stop()

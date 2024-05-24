@@ -1,10 +1,9 @@
 # import .py
 import client
-from picamera2 import Picamera2
-from picamera2.previews.qt import QGlPicamera2
+#import camera
+
 
 # import package
-import time
 import sys
 import os.path
 from PyQt5.QtWidgets import *
@@ -13,8 +12,6 @@ from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtCore import QSize, Qt, pyqtSignal
 from PyQt5 import uic
 
-# Initialize the camera globally
-picam2 = Picamera2()
 
 # UI파일 연결
 def resource_path(relative_path):
@@ -27,7 +24,6 @@ form_class = uic.loadUiType(form)[0]
 
 scan_cnt = 0
 
-
 #화면을 띄우는데 사용되는 Class 선언
 class MainWindow(QMainWindow, form_class) :
 
@@ -37,8 +33,6 @@ class MainWindow(QMainWindow, form_class) :
         self.setupUi(self)
         self.initUI()
 
-        # Start camera preview
-        self.start_camera_preview()
 
     # AddUI initial
     def initUI(self):
@@ -48,14 +42,14 @@ class MainWindow(QMainWindow, form_class) :
         self.initSTATUS()
         self.initMENU()
         self.initBTN()
-#        self.initLOGO()
+        self.initLOGO()
 
     # Logo initial
-#    def initLOGO(self):
-#        logo_dir = resource_path("./.ico/logo.png")
-#        logo = QPixmap(logo_dir)
-#        logo_img = logo.scaled(QSize(100, 100), aspectRatioMode=Qt.KeepAspectRatio)
-#        self.label_logo.setPixmap(logo_img)
+    def initLOGO(self):
+        logo_dir = resource_path("./.ico/logo.png")
+        logo = QPixmap(logo_dir)
+        logo_img = logo.scaled(QSize(100, 100), aspectRatioMode=Qt.KeepAspectRatio)
+        self.label_logo.setPixmap(logo_img)
 
 
     # StatusBar initial
@@ -68,13 +62,12 @@ class MainWindow(QMainWindow, form_class) :
         self.btn_summary.clicked.connect(lambda: self.initbtnssummary())
         self.btn_reset.clicked.connect(lambda: self.initbtnreset())
 
-
     # MenuBar initial
     def initMENU(self):
         # Menu Action initial
         exitAction = QAction('Exit', self)
         exitAction.setShortcut('Ctrl+Q')
-        exitAction.triggered.connect(lambda: self.close())
+        exitAction.triggered.connect(lambda : self.close())
 
         abouttext = "This program is a hands-on program for 융종설 in the first semester of 2024 and was produced by Team SUMMARYKING.\n" \
                     "It cannot be copied or used without permission and requires the consent of the manufacturer.\n\n " \
@@ -82,9 +75,11 @@ class MainWindow(QMainWindow, form_class) :
                     " Copyright ⓒ 2024 Team SUMMARYKING"
         aboutAction = QAction('About', self)
         aboutAction.setShortcut('Ctrl+H')
-        aboutAction.triggered.connect(lambda: QMessageBox.about(self, 'About', abouttext))
+        aboutAction.triggered.connect(lambda : QMessageBox.about(self, 'About', abouttext))
 
         settingAction = QAction('Settings', self)
+
+
 
         # Menu bar
         menubar = self.menuBar()
@@ -97,59 +92,18 @@ class MainWindow(QMainWindow, form_class) :
         helpmenu.addAction(aboutAction)
 
 
-    def start_camera_preview(self):
-        # Adjust the preview size to match the sensor aspect ratio.
-        preview_width = 481
-        preview_height = 231
-        # We also want a full FoV raw mode, this gives us the 2x2 binned mode.
-        raw_size = tuple([v // 2 for v in picam2.camera_properties['PixelArraySize']])
-        preview_config = picam2.create_preview_configuration({"size": (preview_width, preview_height)}, raw={"size": raw_size})
-        picam2.configure(preview_config)
-
-        # Create QGlPicamera2 widget for preview
-        bg_colour = self.palette().color(QPalette.Background).getRgb()[:3]
-        self.qpicamera2 = QGlPicamera2(picam2, width=preview_width, height=preview_height, bg_colour=bg_colour)
-        self.qpicamera2.done_signal.connect(self.callback, type=QtCore.Qt.QueuedConnection)
-
-        # Add preview widget to layout with specific position and size
-        self.qpicamera2.setGeometry(QtCore.QRect(20, 20, preview_width, preview_height))
-        self.qpicamera2.setObjectName("qpicamera2")
-        self.previewLayout.addWidget(self.qpicamera2)
-
-        # Start camera
-        picam2.start()
-
-
-    def callback(self, job):
-        # Handle callback from camera operations if needed
-        self.on_capture_complete()
-
-
-    def capture_image(self):
-        cfg = picam2.create_still_configuration()
-        picam2.switch_mode_and_capture_file(cfg, "scan.jpg", signal_function=self.callback)
-
-        time.sleep(0.5)
-
-
     def initbtnscan(self):
-        # Handle capture completion
-        self.capture_image()
-       # client.send_file()
-       # global scan_cnt
-       # scan_cnt += 1
-       # self.statusBar().showMessage(f'현재까지 스캔된 페이지: {scan_cnt} 장')
-
-
-    def on_capture_complete(self):
+        #camera.
         client.send_file()
+
         global scan_cnt
-        scan_cnt += 1
-        self.statusBar().showMessage(f'현재까지 스캔된 페이지: {scan_cnt} 장')
+        scan_cnt = scan_cnt + 1
+        self.statusBar().showMessage('현재까지 스캔된 페이지 : ' + str(scan_cnt) + '장')
+
+    #     camera.cameracapture()
 
 
     def initbtnssummary(self):
-        # Handle summary button click
         response = ''
         response = client.send_summary_signal()
         self.label_summary.setFont(QFont('Arial', 12))
@@ -161,7 +115,6 @@ class MainWindow(QMainWindow, form_class) :
 
 
     def initbtnreset(self):
-        # Handle reset button click
         client.send_delete_signal()
         self.label_summary.setText('')
         self.statusBar().showMessage('Ready')
@@ -169,8 +122,7 @@ class MainWindow(QMainWindow, form_class) :
         scan_cnt = 0
 
 
-    def closeEvent(self, event):
-        # Handle close event
+    def closeEvent(self, event,):
         reply = QMessageBox.question(self, 'Exit', 'Are you sure to exit?',
                                     QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
 
@@ -180,6 +132,13 @@ class MainWindow(QMainWindow, form_class) :
             event.ignore()
 
 
-# Stop camera when application exits
-picam2.stop()
+
+# class SettingsWindow(QDialog):
+#     def __init__(self):
+#         super().__init__()
+#         self.setWindowTitle('Settings')
+#         self.setWindowIcon(QIcon('.ico/icon.png'))
+#         self.ui = uic.loadUi('settings.ui', self)
+#
+
 

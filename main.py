@@ -13,12 +13,9 @@ if __name__ == "__main__" :
 
     #인스턴스 생성
     mainWindow = ui.MainWindow()
-    #preview = ui.CameraPreview()
 
-    #프로그램 화면을 보여주는 코드
-    mainWindow.show()
-    #preview.show()
-    #preview.startpreview()
+    # 프로그램 화면을 보여주는 코드
+    mainWindow.showMaximized()
 
     #프로그램을 이벤트루프로 진입시키는(프로그램을 작동시키는) 코드
     app.exec_()

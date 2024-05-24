@@ -4,7 +4,6 @@ from picamera2 import Picamera2
 from picamera2.previews.qt import QGlPicamera2
 
 # import package
-import time
 import sys
 import os.path
 from PyQt5.QtWidgets import *
@@ -122,14 +121,14 @@ class MainWindow(QMainWindow, form_class) :
 
     def callback(self, job):
         # Handle callback from camera operations if needed
-        self.on_capture_complete()
+        pass
 
 
     def capture_image(self):
         cfg = picam2.create_still_configuration()
-        picam2.switch_mode_and_capture_file(cfg, "scan.jpg", signal_function=self.callback)
+        picam2.switch_mode_and_capture_file(cfg, "scan.jpg", signal_function=self.qpicamera2.signal_done)
+        self.on_capture_complete()
 
-        time.sleep(0.5)
 
 
     def initbtnscan(self):
